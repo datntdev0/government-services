@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <VersionPrefix>1.0.0.0</VersionPrefix>
+        <TargetFramework>net8.0</TargetFramework>
+        <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+        <AssemblyName>Government.Services.Application</AssemblyName>
+        <PackageId>Government.Services.Application</PackageId>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <RootNamespace>Government.Services</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Government.Services.Application.Contracts\Government.Services.Application.Contracts.csproj" />
+      <ProjectReference Include="..\Government.Services.Core\Government.Services.Core.csproj" />
+    </ItemGroup>
+</Project>

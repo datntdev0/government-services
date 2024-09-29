@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Government.Services.Migrator": {
+      "commandName": "Project",
+      "commandLineArgs": "-q"
+    }
+  }
+}
