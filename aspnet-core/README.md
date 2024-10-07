@@ -66,6 +66,6 @@ dotnet run
 After building and migrating, you can run the web host. Navigate to the `Government.Services.Host` folder and start the project:
 
 ```bash
-cd Government.Services.Host
+cd Government.Services.Web.Host
 dotnet run
 ```
