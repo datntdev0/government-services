@@ -251,6 +251,9 @@ paket-files/
 .idea/
 *.sln.iml
 
+# Exclude Visual Studio Code settings
+.vscode/
+
 src/MyCompany.MyProject.Web.Mvc/secrets.json
 src/MyCompany.MyProject.Web.Host/secrets.json
 src/MyCompany.MyProject.Migrator/secrets.json
