@@ -8,7 +8,7 @@ namespace Government.Services.Formalities
     /// The Administrative Formalities existing in system
     /// </summary>
     [Table("AppFormalities")]
-    public class Formality : FullAuditedEntity<int>, IMayHaveTenant
+    public class Formality : FullAuditedEntity, IMayHaveTenant
     {
         /// <summary>
         /// Tenant Id of this user.

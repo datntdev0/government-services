@@ -13,6 +13,8 @@ namespace Government.Services
             context.CreatePermission(PermissionNames.Pages_Users_Activation, L("UsersActivation"));
             context.CreatePermission(PermissionNames.Pages_Roles, L("Roles"));
             context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);
+
+            context.CreatePermission(PermissionNames.Pages_Formalities, L("Formalities"));
         }
 
         private static ILocalizableString L(string name)
