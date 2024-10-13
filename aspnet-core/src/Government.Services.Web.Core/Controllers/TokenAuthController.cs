@@ -14,28 +14,31 @@ using Government.Services.Authorization;
 using Government.Services.Authorization.Users;
 using Government.Services.Models.TokenAuth;
 using Government.Services.MultiTenancy;
-using Government.Services.Identity;
+using Government.Services.Authorization.Accounts.Dto;
 
 namespace Government.Services.Controllers
 {
     [Route("api/[controller]/[action]")]
     public class TokenAuthController : ServicesControllerBase
     {
-        private readonly LogInManager _logInManager;
         private readonly ITenantCache _tenantCache;
-        private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
+        private readonly LogInManager _logInManager;
+        private readonly TenantManager _tenantManager;
         private readonly TokenAuthConfiguration _configuration;
+        private readonly AbpLoginResultTypeHelper _abpLoginResultTypeHelper;
 
         public TokenAuthController(
-            LogInManager logInManager,
             ITenantCache tenantCache,
-            AbpLoginResultTypeHelper abpLoginResultTypeHelper,
-            TokenAuthConfiguration configuration)
+            LogInManager logInManager,
+            TenantManager tenantManager,
+            TokenAuthConfiguration configuration,
+            AbpLoginResultTypeHelper abpLoginResultTypeHelper)
         {
-            _logInManager = logInManager;
             _tenantCache = tenantCache;
-            _abpLoginResultTypeHelper = abpLoginResultTypeHelper;
+            _logInManager = logInManager;
+            _tenantManager = tenantManager;
             _configuration = configuration;
+            _abpLoginResultTypeHelper = abpLoginResultTypeHelper;
         }
 
         [HttpPost]
@@ -56,6 +59,23 @@ namespace Government.Services.Controllers
                 ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
                 UserId = loginResult.User.Id
             };
+        }
+
+        [HttpPost]
+        public async Task<IsTenantAvailableOutput> IsTenantAvailable([FromBody] IsTenantAvailableInput input)
+        {
+            var tenant = await _tenantManager.FindByTenancyNameAsync(input.TenancyName);
+            if (tenant == null)
+            {
+                return new IsTenantAvailableOutput(TenantAvailabilityState.NotFound);
+            }
+
+            if (!tenant.IsActive)
+            {
+                return new IsTenantAvailableOutput(TenantAvailabilityState.InActive);
+            }
+
+            return new IsTenantAvailableOutput(TenantAvailabilityState.Available, tenant.Id);
         }
 
         private string GetTenancyNameOrNull()
