@@ -9,7 +9,8 @@ namespace Government.Services.EntityFrameworkCore
     public class ServicesDbContext : AbpZeroDbContext<Tenant, Role, User, ServicesDbContext>
     {
         /* Define a DbSet for each entity of the application */
-        
+        public virtual DbSet<Formalities.Formality> Formalities { get; set; }
+
         public ServicesDbContext(DbContextOptions<ServicesDbContext> options)
             : base(options)
         {
