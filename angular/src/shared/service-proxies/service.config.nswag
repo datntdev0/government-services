@@ -69,7 +69,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../src/shared/service-proxies/service-proxies.ts",
+      "output": "./service-proxies.ts",
       "newLineBehavior": "Auto"
     },
     "openApiToCSharpClient": {
