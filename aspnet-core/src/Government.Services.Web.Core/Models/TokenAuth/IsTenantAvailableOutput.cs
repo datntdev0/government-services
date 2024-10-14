@@ -1,4 +1,4 @@
-namespace Government.Services.Authorization.Accounts.Dto
+namespace Government.Services.Models.TokenAuth
 {
     public class IsTenantAvailableOutput
     {

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Abp.MultiTenancy;
 
-namespace Government.Services.Authorization.Accounts.Dto
+namespace Government.Services.Models.TokenAuth
 {
     public class IsTenantAvailableInput
     {

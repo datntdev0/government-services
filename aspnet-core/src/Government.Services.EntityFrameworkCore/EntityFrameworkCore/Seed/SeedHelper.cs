@@ -25,8 +25,10 @@ namespace Government.Services.EntityFrameworkCore.Seed
             new InitialHostDbBuilder(context).Create();
 
             // Default tenant seed (in host database).
+            var tenantId = MultiTenancyConsts.DefaultTenantId;
             new DefaultTenantBuilder(context).Create();
-            new TenantRoleAndUserBuilder(context, 1).Create();
+            new TenantRoleAndUserBuilder(context, tenantId).Create();
+            new AdministrativeFormalityBuilder(context, tenantId).Create();
         }
 
         private static void WithDbContext<TDbContext>(IIocResolver iocResolver, Action<TDbContext> contextAction)
