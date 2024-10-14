@@ -1,5 +1,5 @@
 {
-  "name": "Services",
+  "name": "government-services",
   "version": "4.7.1",
   "private": true,
   "license": "MIT",
@@ -10,7 +10,8 @@
     "lint": "tslint --force --project src/tsconfig.json src/**/*.ts -t verbose",
     "start": "ng serve --host 0.0.0.0 --port 4200",
     "build": "ng build",
-    "test": "ng test"
+    "test": "ng test",
+    "nswag": "nswag run src/shared/service-proxies/service.config.nswag"
   },
   "dependencies": {
     "@angular/animations": "^18.1.2",
