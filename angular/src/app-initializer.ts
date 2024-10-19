@@ -1,14 +1,15 @@
-import { Injectable, Injector } from '@angular/core';
-import { PlatformLocation, registerLocaleData } from '@angular/common';
+import { PlatformLocation } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import * as moment from 'moment-timezone';
-import { filter as _filter, merge as _merge } from 'lodash-es';
+import { Injectable, Injector } from '@angular/core';
 import { AppConsts } from '@shared/AppConsts';
-import { AppSessionService } from '@shared/session/app-session.service';
-import { environment } from './environments/environment';
-import { AccountServiceProxy, IsTenantAvailableInput, IsTenantAvailableOutput, TenantAvailabilityState } from '@shared/service-proxies/service-proxies';
-import { SubdomainTenantResolver } from '@shared/multi-tenancy/tenant-resolvers/subdomain-tenant-resolver';
+import localeModuleLoader from "@shared/locales/angular-locale-modules";
 import { QueryStringTenantResolver } from '@shared/multi-tenancy/tenant-resolvers/query-string-tenant-resolver';
+import { SubdomainTenantResolver } from '@shared/multi-tenancy/tenant-resolvers/subdomain-tenant-resolver';
+import { AccountServiceProxy, IsTenantAvailableInput, IsTenantAvailableOutput, TenantAvailabilityState } from '@shared/service-proxies/service-proxies';
+import { AppSessionService } from '@shared/session/app-session.service';
+import { filter as _filter, merge as _merge } from 'lodash-es';
+import * as moment from 'moment-timezone';
+import { environment } from './environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -38,16 +39,9 @@ export class AppInitializer {
                   const angularLocale = this.convertAbpLocaleToAngularLocale(
                     abp.localization.currentLanguage.name
                   );
-                  import(`/node_modules/@angular/common/locales/${angularLocale}.mjs`).then(
-                    (module) => {
-                      registerLocaleData(module.default);
-                      resolve(result);
-                    },
-                    reject
-                  );
-                } else {
-                  resolve(result);
+                  localeModuleLoader[angularLocale]?.();
                 }
+                resolve(result);
               },
               (err) => {
                 abp.ui.clearBusy();
