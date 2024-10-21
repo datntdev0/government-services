@@ -5,7 +5,7 @@ import { AppConsts } from '@shared/AppConsts';
 import localeModuleLoader from "@shared/locales/angular-locale-modules";
 import { QueryStringTenantResolver } from '@shared/multi-tenancy/tenant-resolvers/query-string-tenant-resolver';
 import { SubdomainTenantResolver } from '@shared/multi-tenancy/tenant-resolvers/subdomain-tenant-resolver';
-import { AccountServiceProxy, IsTenantAvailableInput, IsTenantAvailableOutput, TenantAvailabilityState } from '@shared/service-proxies/service-proxies';
+import { IsTenantAvailableInput, IsTenantAvailableOutput, TenantAvailabilityState, TokenAuthServiceProxy } from '@shared/service-proxies/service-proxies';
 import { AppSessionService } from '@shared/session/app-session.service';
 import { filter as _filter, merge as _merge } from 'lodash-es';
 import * as moment from 'moment-timezone';
@@ -173,11 +173,11 @@ export class AppInitializer {
   }
 
   private ConfigureTenantIdCookie(tenancyName: string, callback: () => void) {
-    let accountServiceProxy: AccountServiceProxy = this._injector.get(AccountServiceProxy);
+    let tokenAuthService = this._injector.get(TokenAuthServiceProxy);
     let input = new IsTenantAvailableInput();
     input.tenancyName = tenancyName;
 
-    accountServiceProxy.isTenantAvailable(input).subscribe((result: IsTenantAvailableOutput) => {
+    tokenAuthService.isTenantAvailable(input).subscribe((result: IsTenantAvailableOutput) => {
       if (result.state === TenantAvailabilityState._1) { // Available
         abp.multiTenancy.setTenantIdCookie(result.tenantId);
       }

@@ -1,5 +1,5 @@
-﻿using Abp.MultiTenancy;
-using Government.Services.Formalities;
+﻿using Government.Services.Formalities;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,14 +7,11 @@ namespace Government.Services.EntityFrameworkCore.Seed.Tenants
 {
     public class AdministrativeFormalityBuilder
     {
-        public static List<Formality> InitialFormalities => GetInitialFormalities();
-
         private readonly ServicesDbContext _context;
         private readonly int _tenantId;
 
-        private static List<Formality> GetInitialFormalities()
+        private static List<Formality> GetInitialFormalities(int? tenantId)
         {
-            var tenantId = ServicesConsts.MultiTenancyEnabled ? null : (int?)MultiTenancyConsts.DefaultTenantId;
             return
             [
                 new(tenantId, true, FormalityType.RegBirthCertificate),
@@ -43,19 +40,29 @@ namespace Government.Services.EntityFrameworkCore.Seed.Tenants
 
         private void CreateAdministrativeFormalities()
         {
-            foreach (var formality in InitialFormalities)
+            foreach (var formality in GetInitialFormalities(_tenantId))
             {
-                AddFormalityIfNotExists(formality);
+                AddOrUpdateFormality(formality);
             }
         }
 
-        private void AddFormalityIfNotExists(Formality formality)
+        private void AddOrUpdateFormality(Formality formality)
         {
-            if (!_context.Formalities.Any(x => x.FormalityType == formality.FormalityType))
+            var existingFormality = _context.Formalities
+                .IgnoreQueryFilters()
+                .Where(x => x.TenantId == _tenantId)
+                .FirstOrDefault(x => x.FormalityType == formality.FormalityType);
+
+            if (existingFormality == null)
             {
                 _context.Formalities.Add(formality);
-                _context.SaveChanges();
             }
+            else
+            {
+                existingFormality.IsActive = formality.IsActive;
+                _context.Update(existingFormality);
+            }
+            _context.SaveChanges();
         }
     }
 }
