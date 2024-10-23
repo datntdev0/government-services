@@ -1,0 +1,113 @@
+name: Build Docker Images
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "angular/**"
+      - "aspnet-core/**"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "angular/**"
+      - "aspnet-core/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Select environment to build docker image
+        required: true
+        default: 'stg'
+        type: choice
+        options:
+        - prd
+        - stg
+      migrator:
+        description: Build and push the Migrator docker image
+        required: true
+        default: true
+        type: boolean
+      backend:
+        description: Build and push the Backend docker image
+        required: true
+        default: true
+        type: boolean
+      frontend:
+        description: Build and push the Frontedn docker image
+        required: true
+        default: true
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  REPO_NAME: ${{ github.repository }}
+  ENVIRONMENT: >-
+    ${{
+      github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd'
+      || github.event_name == 'workflow_dispatch' && inputs.environment
+      || ''
+    }}
+
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    name: Detect changes
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for changes in specific folders
+        id: detect_changes
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            migrator:
+              - aspnet-core/src/**
+            backend:
+              - aspnet-core/src/**
+            frontend:
+              - angular/**
+    outputs:
+      migrator: ${{ steps.detect_changes.outputs.migrator }}
+      backend: ${{ steps.detect_changes.outputs.backend }}
+      frontend: ${{ steps.detect_changes.outputs.frontend }}
+      
+  build_migrator:
+    needs: detect_changes
+    if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: echo ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator.${{ env.ENVIRONMENT }}:$(date +%s)
+
+  build_backend:
+    needs: detect_changes
+    if: ${{ inputs.backend || needs.detect_changes.outputs.backend == 'true' }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: echo ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend.${{ env.ENVIRONMENT }}:$(date +%s)
+
+  build_frontend:
+    needs: detect_changes
+    if: ${{ inputs.frontend || needs.detect_changes.outputs.frontend == 'true' }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: echo ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend.${{ env.ENVIRONMENT }}:$(date +%s)
