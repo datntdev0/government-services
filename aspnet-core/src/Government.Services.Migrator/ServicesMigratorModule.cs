@@ -16,8 +16,6 @@ namespace Government.Services.Migrator
 
         public ServicesMigratorModule(ServicesEntityFrameworkModule abpProjectNameEntityFrameworkModule)
         {
-            abpProjectNameEntityFrameworkModule.SkipDbSeed = true;
-
             _appConfiguration = AppConfigurations.Get(
                 typeof(ServicesMigratorModule).GetAssembly().GetDirectoryPathOrNull()
             );
