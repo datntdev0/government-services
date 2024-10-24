@@ -2,6 +2,6 @@
 
 export const environment = {
     production: false,
-    hmr: true,
-    appConfig: 'appconfig.json'
+    hmr: false,
+    appConfig: 'appconfig.dev.json'
 };
