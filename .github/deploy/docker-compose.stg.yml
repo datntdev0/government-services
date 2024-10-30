@@ -1,0 +1,31 @@
+services:
+
+  backend:
+    image: ghcr.io/datntdev0/government-services/backend:stg-latest
+    pull_policy: always
+    container_name: backend
+    depends_on:
+      migrator:
+        condition: service_completed_successfully
+    env_file:
+      - .env.stg
+    networks:
+      app-network:
+        ipv4_address: 172.20.0.2
+
+  frontend:
+    image: ghcr.io/datntdev0/government-services/frontend:stg-latest
+    pull_policy: always
+    container_name: frontend
+    networks:
+      app-network:
+        ipv4_address: 172.20.0.3
+    
+volumes:
+  database:
+
+networks:
+  app-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

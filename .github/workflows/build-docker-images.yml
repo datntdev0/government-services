@@ -21,18 +21,13 @@ on:
         options:
         - prd
         - stg
-      migrator:
-        description: Build and push the Migrator docker image
-        required: true
-        default: true
-        type: boolean
       backend:
         description: Build and push the Backend docker image
         required: true
         default: true
         type: boolean
       frontend:
-        description: Build and push the Frontedn docker image
+        description: Build and push the Frontend docker image
         required: true
         default: true
         type: boolean
@@ -60,56 +55,14 @@ jobs:
         with:
           base: ${{ github.ref }}
           filters: |
-            migrator:
-              - aspnet-core/src/**
             backend:
               - aspnet-core/src/**
             frontend:
               - angular/**
     outputs:
-      migrator: ${{ steps.detect_changes.outputs.migrator }}
       backend: ${{ steps.detect_changes.outputs.backend }}
       frontend: ${{ steps.detect_changes.outputs.frontend }}
       
-  build_migrator:
-    needs: detect_changes
-    if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator.${{ env.ENVIRONMENT }}
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      id: build-and-push
-      uses: docker/build-push-action@v5
-      with:
-        context: aspnet-core
-        file: aspnet-core/src/Government.Services.Migrator/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        labels: ${{ steps.meta.outputs.labels }}
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator.${{ env.ENVIRONMENT }}:${{ github.run_id }}
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator.${{ env.ENVIRONMENT }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
   build_backend:
     needs: detect_changes
     if: ${{ inputs.backend || needs.detect_changes.outputs.backend == 'true' }}
@@ -127,7 +80,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend.${{ env.ENVIRONMENT }}
+        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend
     - name: Log into registry ${{ env.REGISTRY }}
       if: ${{ github.event_name != 'pull_request' }}
       uses: docker/login-action@v3
@@ -144,8 +97,8 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         labels: ${{ steps.meta.outputs.labels }}
         tags: |
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend.${{ env.ENVIRONMENT }}:${{ github.run_id }}
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend.${{ env.ENVIRONMENT }}:latest
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ github.run_id }}
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ env.ENVIRONMENT }}-latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -166,7 +119,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend.${{ env.ENVIRONMENT }}
+        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend
     - name: Log into registry ${{ env.REGISTRY }}
       if: ${{ github.event_name != 'pull_request' }}
       uses: docker/login-action@v3
@@ -183,7 +136,7 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         labels: ${{ steps.meta.outputs.labels }}
         tags: |
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend.${{ env.ENVIRONMENT }}:${{ github.run_id }}
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend.${{ env.ENVIRONMENT }}:latest
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ github.run_id }}
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ env.ENVIRONMENT }}-latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
