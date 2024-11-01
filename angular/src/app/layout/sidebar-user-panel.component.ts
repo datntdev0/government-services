@@ -5,7 +5,7 @@ import {
   OnInit
 } from '@angular/core';
 import { AppComponentBase } from '@shared/app-component-base';
-import {AppAuthService} from '@shared/auth/app-auth.service';
+import { AppAuthService } from '@shared/auth/app-auth.service';
 
 @Component({
   selector: 'sidebar-user-panel',
