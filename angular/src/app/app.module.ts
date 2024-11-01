@@ -13,9 +13,8 @@ import { AppComponent } from './app.component';
 import { SharedModule } from '@shared/shared.module';
 import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module';
 // layout
-import { HeaderComponent } from './layout/header.component';
 import { HeaderLeftNavbarComponent } from './layout/header-left-navbar.component';
-import { HeaderLanguageMenuComponent } from './layout/header-language-menu.component';
+import { LanguageMenuComponent } from './layout/language-menu.component';
 import { FooterComponent } from './layout/footer.component';
 import { SidebarComponent } from './layout/sidebar.component';
 import { SidebarLogoComponent } from './layout/sidebar-logo.component';
@@ -26,9 +25,8 @@ import { SidebarMenuComponent } from './layout/sidebar-menu.component';
     declarations: [
         AppComponent,
         // layout
-        HeaderComponent,
         HeaderLeftNavbarComponent,
-        HeaderLanguageMenuComponent,
+        LanguageMenuComponent,
         FooterComponent,
         SidebarComponent,
         SidebarLogoComponent,
