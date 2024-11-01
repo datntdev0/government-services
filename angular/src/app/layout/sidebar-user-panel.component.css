@@ -1,0 +1,20 @@
+.user-panel {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.user-panel.overflow-visible {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.dropdown-menu.show {
+  top: 80% !important;
+}
+
+.dropdown-menu .dropdown-item {
+  &:hover {
+    color: #ff0000;
+  }
+}

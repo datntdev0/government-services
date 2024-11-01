@@ -16,7 +16,6 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { HeaderComponent } from './layout/header.component';
 import { HeaderLeftNavbarComponent } from './layout/header-left-navbar.component';
 import { HeaderLanguageMenuComponent } from './layout/header-language-menu.component';
-import { HeaderUserMenuComponent } from './layout/header-user-menu.component';
 import { FooterComponent } from './layout/footer.component';
 import { SidebarComponent } from './layout/sidebar.component';
 import { SidebarLogoComponent } from './layout/sidebar-logo.component';
@@ -30,7 +29,6 @@ import { SidebarMenuComponent } from './layout/sidebar-menu.component';
         HeaderComponent,
         HeaderLeftNavbarComponent,
         HeaderLanguageMenuComponent,
-        HeaderUserMenuComponent,
         FooterComponent,
         SidebarComponent,
         SidebarLogoComponent,

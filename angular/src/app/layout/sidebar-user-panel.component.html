@@ -1,4 +1,4 @@
-<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+<div class="overflow-visible user-panel mt-3 pb-3 mb-3 d-flex" dropdown dropdownToggle>
   <div class="image">
     <img
       src="assets/img/user.png"
@@ -7,6 +7,14 @@
     />
   </div>
   <div class="info">
-    <a class="d-block" href="javascript:;">{{ shownLoginName }}</a>
+    <a class="d-block" href="javascript:">{{ shownLoginName }}</a>
+  </div>
+  <div class="dropdown-menu dropdown-menu-left" *dropdownMenu>
+    <a class="dropdown-item" [routerLink]="['update-password']">
+      <i class="fas fa-user-edit"></i> {{ "UpdatePassword" | localize }}
+    </a>
+    <a class="dropdown-item" href="javascript:" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i> {{ "Logout" | localize }}
+    </a>
   </div>
 </div>

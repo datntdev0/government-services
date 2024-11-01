@@ -23,7 +23,6 @@ import { AboutComponent } from "../app/about/about.component";
 import { HeaderComponent } from "./layout/header.component";
 import { HeaderLeftNavbarComponent } from "./layout/header-left-navbar.component";
 import { HeaderLanguageMenuComponent } from "./layout/header-language-menu.component";
-import { HeaderUserMenuComponent } from "./layout/header-user-menu.component";
 import { FooterComponent } from "./layout/footer.component";
 import { SidebarComponent } from "./layout/sidebar.component";
 import { SidebarLogoComponent } from "./layout/sidebar-logo.component";
@@ -42,7 +41,6 @@ describe("AppComponent", () => {
         HeaderComponent,
         HeaderLeftNavbarComponent,
         HeaderLanguageMenuComponent,
-        HeaderUserMenuComponent,
         FooterComponent,
         SidebarComponent,
         SidebarLogoComponent,
@@ -93,5 +91,5 @@ describe("AppComponent", () => {
     const app = fixture.debugElement.componentInstance;
     expect(app).toBeTruthy();
   }));
-  
+
 });
