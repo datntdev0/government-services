@@ -1,0 +1,132 @@
+name: Action - Build Docker Images
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      migrator:
+        required: true
+        default: true
+        type: boolean
+      backend:
+        required: true
+        default: true
+        type: boolean
+      frontend:
+        required: true
+        default: true
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  REPO_NAME: ${{ github.repository }}
+
+jobs:
+  build_migrator:
+    if: ${{ inputs.migrator }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator
+    - name: Build Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
+      with:
+        context: aspnet-core
+        file: aspnet-core/src/Government.Services.Migrator/Dockerfile
+        push: false
+        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator:${{ github.run_id }}
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/migrator:${{ inputs.environment }}-latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  build_backend:
+    if: ${{ inputs.backend }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: ${{ inputs.environment != 'dev' }}
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
+      with:
+        context: aspnet-core
+        file: aspnet-core/src/Government.Services.Web.Host/Dockerfile
+        push: ${{ inputs.environment != 'dev' }}
+        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ github.run_id }}
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ inputs.environment }}-latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  build_frontend:
+    if: ${{ inputs.frontend }}
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: ${{ inputs.environment != 'dev' }}
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@v5
+      with:
+        context: angular
+        build-args: BUILD_ENV=${{ inputs.environment }}
+        push: ${{ inputs.environment != 'dev' }}
+        labels: ${{ steps.meta.outputs.labels }}
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ github.run_id }}
+          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ inputs.environment }}-latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

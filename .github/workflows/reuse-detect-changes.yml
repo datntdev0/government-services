@@ -1,0 +1,39 @@
+name: Action - Detect Changes
+
+on:
+  workflow_call:
+    outputs:
+      migrator:
+        description: Having changes in migrator
+        value: ${{ jobs.detect_changes.outputs.migrator }}
+      backend:
+        description: Having changes in backend
+        value: ${{ jobs.detect_changes.outputs.backend }}
+      frontend:
+        description: Having changes in frontend
+        value: ${{ jobs.detect_changes.outputs.frontend }}
+        
+jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    name: Detect changes
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for changes in specific folders
+        id: detect_changes
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            migrator:
+              - aspnet-core/src/*EntityFramework*/**
+              - aspnet-core/src/*Migrator/**
+            backend:
+              - aspnet-core/src/**
+            frontend:
+              - angular/**
+    outputs:
+      migrator: ${{ steps.detect_changes.outputs.migrator }}
+      backend: ${{ steps.detect_changes.outputs.backend }}
+      frontend: ${{ steps.detect_changes.outputs.frontend }}
+      

@@ -1,0 +1,81 @@
+name: Deploy Docker Images
+
+on: 
+  push:
+    branches: [ "main" ]
+    paths:
+      - "angular/**"
+      - "aspnet-core/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Select environment to deploy docker images
+        required: true
+        default: 'stg'
+        type: choice
+        options:
+        - prd
+        - stg
+      migrator: 
+        description: Run the database migration
+        required: true
+        default: false
+        type: boolean
+      backend:
+        description: Build and push the Backend docker image
+        required: true
+        default: true
+        type: boolean
+      frontend:
+        description: Build and push the Frontend docker image
+        required: true
+        default: true
+        type: boolean
+
+env:
+  ENVIRONMENT: >-
+    ${{
+      github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd'
+      || github.event_name == 'workflow_dispatch' && inputs.environment
+    }}
+
+jobs:
+  detect_changes:
+    uses: ./.github/workflows/reuse-detect-changes.yml
+
+  build_docker_images:
+    needs: detect_changes
+    uses: ./.github/workflows/reuse-build-images.yml
+    
+    permissions:
+      contents: read
+      packages: write
+
+    with:
+      environment: ${{ inputs.environment }}
+      migrator: false
+      backend: ${{ inputs.backend || needs.detect_changes.outputs.backend == 'true' }}
+      frontend: ${{ inputs.frontend || needs.detect_changes.outputs.frontend == 'true' }}
+
+  database_migration:
+    needs: detect_changes
+    if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+
+  deploy-docker-images:
+    needs: [database_migration, build_docker_images]
+    if: |
+      always() &&
+      needs.build_docker_images.result == 'success' &&
+      needs.database_migration.result != 'failure'
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4

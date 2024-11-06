@@ -1,142 +1,26 @@
 name: Build Docker Images
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "angular/**"
-      - "aspnet-core/**"
   pull_request:
     branches: [ "main" ]
     paths:
       - "angular/**"
       - "aspnet-core/**"
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: Select environment to build docker image
-        required: true
-        default: 'stg'
-        type: choice
-        options:
-        - prd
-        - stg
-      backend:
-        description: Build and push the Backend docker image
-        required: true
-        default: true
-        type: boolean
-      frontend:
-        description: Build and push the Frontend docker image
-        required: true
-        default: true
-        type: boolean
-
-env:
-  REGISTRY: ghcr.io
-  REPO_NAME: ${{ github.repository }}
-  TIMESTAMP: 
-  ENVIRONMENT: >-
-    ${{
-      github.event_name == 'push' && github.ref == 'refs/heads/main' && 'prd'
-      || github.event_name == 'workflow_dispatch' && inputs.environment
-      || 'dev'
-    }}
-
+  
 jobs:
   detect_changes:
-    runs-on: ubuntu-latest
-    name: Detect changes
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check for changes in specific folders
-        id: detect_changes
-        uses: dorny/paths-filter@v3
-        with:
-          base: ${{ github.ref }}
-          filters: |
-            backend:
-              - aspnet-core/src/**
-            frontend:
-              - angular/**
-    outputs:
-      backend: ${{ steps.detect_changes.outputs.backend }}
-      frontend: ${{ steps.detect_changes.outputs.frontend }}
-      
-  build_backend:
+    uses: ./.github/workflows/reuse-detect-changes.yml
+  
+  build_docker_images:
     needs: detect_changes
-    if: ${{ inputs.backend || needs.detect_changes.outputs.backend == 'true' }}
-
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/reuse-build-images.yml
+    
     permissions:
       contents: read
       packages: write
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      id: build-and-push
-      uses: docker/build-push-action@v5
-      with:
-        context: aspnet-core
-        file: aspnet-core/src/Government.Services.Web.Host/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
-        labels: ${{ steps.meta.outputs.labels }}
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ github.run_id }}
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/backend:${{ env.ENVIRONMENT }}-latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-  build_frontend:
-    needs: detect_changes
-    if: ${{ inputs.frontend || needs.detect_changes.outputs.frontend == 'true' }}
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Extract Docker metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend
-    - name: Log into registry ${{ env.REGISTRY }}
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and push Docker image
-      id: build-and-push
-      uses: docker/build-push-action@v5
-      with:
-        context: angular
-        build-args: BUILD_ENV=${{ env.ENVIRONMENT }}
-        push: ${{ github.event_name != 'pull_request' }}
-        labels: ${{ steps.meta.outputs.labels }}
-        tags: |
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ github.run_id }}
-          ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend:${{ env.ENVIRONMENT }}-latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    with:
+      environment: dev
+      migrator: ${{ needs.detect_changes.outputs.migrator == 'true' }}
+      backend: ${{ needs.detect_changes.outputs.backend == 'true' }}
+      frontend: ${{ needs.detect_changes.outputs.frontend == 'true' }}
