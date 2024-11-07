@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: Continuous Integration
 
 on:
   pull_request:

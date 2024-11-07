@@ -61,7 +61,8 @@ jobs:
   database_migration:
     environment: ${{ inputs.environment }}
     needs: detect_changes
-    if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
+    if: false 
+    # ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
 
     runs-on: ubuntu-latest
 
@@ -80,12 +81,24 @@ jobs:
         ConnectionStrings__Default: ${{ secrets.ASPNETCORE_ENVIRONMENT_CONNECTIONSTRINGS_DEFAULT }}
       
   deploy-docker-images:
-    needs: [database_migration, build_docker_images]
-    if: |
-      always() &&
-      needs.build_docker_images.result == 'success' &&
-      needs.database_migration.result != 'failure'
+    environment: ${{ inputs.environment }}
+    # needs: [database_migration, build_docker_images]
+    # if: |
+    #   always() &&
+    #   needs.build_docker_images.result == 'success' &&
+    #   needs.database_migration.result != 'failure'
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Deploy Portainer stack
+        uses: datntdev0/actions-deploy-portainer@v0.1.0
+        with:
+          base-url: ${{ secrets.PORTAINER_BASE_URL }}
+          access-token: ${{ secrets.PORTAINER_ACCESS_TOKEN }}
+          endpoint-id: ${{ secrets.PORTAINER_ENDPOINT_ID }}
+          stack-name: ${{ secrets.PORTAINER_STACK_NAME }}
+          repository-url: https://github.com/${{ github.repository }}.git
+          repository-ref: ${{ github.ref }}
+          compose-file: .github/deploy/docker-compose.${{ inputs.environment }}.yml
+          env-json: ${{ secrets.PORTAINER_ENV_JSON }}
+  
