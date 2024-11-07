@@ -1,4 +1,4 @@
-name: Deploy Docker Images
+name: Continuous Deployment 
 
 on: 
   push:
@@ -46,6 +46,7 @@ jobs:
   build_docker_images:
     needs: detect_changes
     uses: ./.github/workflows/reuse-build-images.yml
+    if: ${{ false }}
     
     permissions:
       contents: read
@@ -58,6 +59,7 @@ jobs:
       frontend: ${{ inputs.frontend || needs.detect_changes.outputs.frontend == 'true' }}
 
   database_migration:
+    environment: ${{ inputs.environment }}
     needs: detect_changes
     if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
 
@@ -68,7 +70,15 @@ jobs:
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-
+    - name: Build the Migrator project
+      run: dotnet build
+      working-directory: aspnet-core/src/Government.Services.Migrator
+    - name: Running the migration from Migrator project
+      run: dotnet run -q
+      working-directory: aspnet-core/src/Government.Services.Migrator
+      env:
+        ConnectionStrings__Default: ${{ secrets.ASPNETCORE_ENVIRONMENT_CONNECTIONSTRINGS_DEFAULT }}
+      
   deploy-docker-images:
     needs: [database_migration, build_docker_images]
     if: |
