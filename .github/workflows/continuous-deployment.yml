@@ -46,7 +46,6 @@ jobs:
   build_docker_images:
     needs: detect_changes
     uses: ./.github/workflows/reuse-build-images.yml
-    if: ${{ false }}
     
     permissions:
       contents: read
@@ -61,8 +60,7 @@ jobs:
   database_migration:
     environment: ${{ inputs.environment }}
     needs: detect_changes
-    if: false 
-    # ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
+    if: ${{ inputs.migrator || needs.detect_changes.outputs.migrator == 'true' }}
 
     runs-on: ubuntu-latest
 
@@ -82,11 +80,11 @@ jobs:
       
   deploy-docker-images:
     environment: ${{ inputs.environment }}
-    # needs: [database_migration, build_docker_images]
-    # if: |
-    #   always() &&
-    #   needs.build_docker_images.result == 'success' &&
-    #   needs.database_migration.result != 'failure'
+    needs: [database_migration, build_docker_images]
+    if: |
+      always() &&
+      needs.build_docker_images.result != 'failure' &&
+      needs.database_migration.result != 'failure'
 
     runs-on: ubuntu-latest
     steps:

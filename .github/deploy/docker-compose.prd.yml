@@ -1,23 +1,23 @@
 services:
 
   backend:
-    image: ghcr.io/datntdev0/government-services/backend:stg-latest
+    image: ghcr.io/datntdev0/government-services/backend:prd-latest
     pull_policy: always
     networks:
       app-network:
-        ipv4_address: 172.20.0.2
+        ipv4_address: 172.21.0.2
     restart: always
     environment:
       App__CorsOrigins: ${ASPNETCORE_ENVIRONMENT_APP_CORSORIGINS}
       ConnectionStrings__Default: ${ASPNETCORE_ENVIRONMENT_CONNECTIONSTRINGS_DEFAULT}
 
   frontend:
-    image: ghcr.io/datntdev0/government-services/frontend:stg-latest
+    image: ghcr.io/datntdev0/government-services/frontend:prd-latest
     pull_policy: always
     restart: always
     networks:
       app-network:
-        ipv4_address: 172.20.0.3
+        ipv4_address: 172.21.0.3
     
 volumes:
   database:
@@ -26,4 +26,4 @@ networks:
   app-network:
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.21.0.0/16
