@@ -1,0 +1,25 @@
+<div class="dropdown nav-pills nav-flat nav-sidebar" dropdown dropdownToggle>
+  <div class="nav-item">
+    <a href="javascript:;" class="nav-link">
+      <i class="d-inline-block nav-icon {{ currentLanguage.icon }}"></i>
+      <span class="d-none d-md-inline-block ml-1">
+        {{ currentLanguage.displayName }}
+      </span>
+    </a>
+  </div>
+
+  <div class="dropdown-menu dropdown-menu-left p-0" *dropdownMenu>
+    @for (language of languages; track language) {
+      @if (language.name != currentLanguage.name) {
+        <a
+          class="dropdown-item"
+          href="javascript:;"
+          (click)="changeLanguage(language.name)"
+          >
+          <i class="d-inline-block {{ language.icon }} mr-1"></i>
+          {{ language.displayName }}
+        </a>
+      }
+    }
+  </div>
+</div>

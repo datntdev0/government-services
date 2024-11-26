@@ -12,11 +12,12 @@ import {
 import { filter as _filter } from 'lodash-es';
 
 @Component({
-  selector: 'header-language-menu',
-  templateUrl: './header-language-menu.component.html',
+  selector: 'language-menu',
+  templateUrl: './language-menu.component.html',
+  styleUrl: './language-menu.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderLanguageMenuComponent extends AppComponentBase
+export class LanguageMenuComponent extends AppComponentBase
   implements OnInit {
   languages: abp.localization.ILanguageInfo[];
   currentLanguage: abp.localization.ILanguageInfo;

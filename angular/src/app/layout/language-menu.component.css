@@ -1,0 +1,7 @@
+.nav-icon {
+  transform: translate(0.3rem);
+}
+
+.dropdown-menu.show {
+  left: 10% !important;
+}
